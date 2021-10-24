@@ -27,7 +27,13 @@ namespace FactoryPattern
             
             bool run = true;
 
-            Random random = new Random(34356);    
+            Random random = new Random(34356); 
+
+            object fpsLock=new object();
+            int fps=0;
+            int fpsResult=0;
+            Timer fpsTimer=new Timer((e)=>{lock(fpsLock){fpsResult=fps; fps=0;}},null,0,1000);
+
 
             Console.CursorVisible = false;
             Console.SetWindowSize(windowWidth, windowHeight);    
@@ -38,6 +44,10 @@ namespace FactoryPattern
             
             while (run)
             {
+                lock(fpsLock){
+                    fps++;
+                }
+
                 if (gunId.Count==0)
                 {
                     for (int i = 0; i < fireworkGuns.Count; i++)
@@ -46,7 +56,15 @@ namespace FactoryPattern
                     }
                 }
 
-                RedrawConsole(pixels, true);
+                try
+                {
+                   RedrawConsole(pixels, true);  
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    ReinitTerminalWindow();
+                }
+                
                 
                 pixels.Clear();
 
@@ -73,12 +91,22 @@ namespace FactoryPattern
 
 
                 fireworks=fireworks.Except(deadFireworks).ToList();
+                Console.SetCursorPosition(0,0);
+                Console.WriteLine($"fireworks count: {fireworks.Count}  ");
+                Console.WriteLine($"fps: {fpsResult}  ");
                 deadFireworks.Clear();
 
-                RedrawConsole(pixels);
+                try
+                {
+                   RedrawConsole(pixels);  
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    ReinitTerminalWindow();
+                }
                 
 
-                Thread.Sleep(50);
+                Thread.Sleep(20);
 
                 if (Console.KeyAvailable)
                 {
@@ -99,6 +127,14 @@ namespace FactoryPattern
             Console.WriteLine("Firework show complete");
         }
 
+        private static void ReinitTerminalWindow(){
+            Console.Clear();
+            Console.ForegroundColor=ConsoleColor.Yellow;
+            Console.WriteLine("Please, resize terminal and press any key...");
+            Console.ReadKey(true);
+            Console.ResetColor();
+            Console.Clear();
+        }
         private static void InitFireGuns(List<FireworkCreator> fireworkGuns)
         {
             for (int i = 0; i < 9; i++)
