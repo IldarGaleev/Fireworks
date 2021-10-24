@@ -8,7 +8,7 @@ This code demonstrate "Abstract fabric" pattern
 1. Install  [.Net Core v3.1](https://dotnet.microsoft.com/download/dotnet/3.1)
 2. Clone repository
 	``` bash
-	git clone <git url>
+	git clone https://github.com/IldarGaleev/Fireworks.git
 	```
 3. Enter project directory 
 	``` bash
