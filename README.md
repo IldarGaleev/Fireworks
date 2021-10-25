@@ -1,11 +1,28 @@
 ﻿
 # Fireworks
 
-This code demonstrate "Abstract fabric" pattern
+Example of using [factory method](https://refactoring.guru/design-patterns/factory-method)
 
-## Build
 
-1. Install  [.Net Core v3.1](https://dotnet.microsoft.com/download/dotnet/3.1)
+## Quick start
+
+1. Download binary
+2. Install [.Net Core v3.1](https://dotnet.microsoft.com/download/dotnet/3.1) runtime
+3. Run
+	* **Windows**
+	``` bash
+	.\FactoryPattern.exe
+	```
+	* **Linux**
+	``` bash
+	chmod +x FactoryPattern
+	./FactoryPattern
+	```
+4. [Use](#How-to-use) 
+
+## From source
+
+1. Install  [.Net Core v3.1](https://dotnet.microsoft.com/download/dotnet/3.1) SDK
 2. Clone repository
 	``` bash
 	git clone https://github.com/IldarGaleev/Fireworks.git
@@ -19,10 +36,10 @@ This code demonstrate "Abstract fabric" pattern
 	dotnet run .\FactoryPattern.csproj
 	```
 
-## How use
+## How to use
 
-* Press **Esc** button - exit program
-* Press **F** button - fire gun
+* **Esc** - exiting the application 
+* **F** - fireworks launch
 
 ## Files
 
