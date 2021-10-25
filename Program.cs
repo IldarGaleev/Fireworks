@@ -35,7 +35,9 @@ namespace FactoryPattern
                 }
 
                 List<int> gunId = new List<int>(fireworkGuns.Count);
+#if Windows
             Console.SetWindowSize(150, 32);
+#endif
             Console.Clear();
             
                 while (run)
