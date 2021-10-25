@@ -36,7 +36,6 @@ namespace FactoryPattern
 
 
             Console.CursorVisible = false;
-            Console.SetWindowSize(windowWidth, windowHeight);    
 
             InitFireGuns(fireworkGuns);                
             
@@ -109,7 +108,7 @@ namespace FactoryPattern
                 }
                 
 
-                Thread.Sleep(20);
+                Thread.Sleep(30);
 
                 if (Console.KeyAvailable)
                 {
