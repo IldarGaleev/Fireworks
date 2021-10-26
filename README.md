@@ -4,16 +4,23 @@
 Example of using [factory method](https://refactoring.guru/design-patterns/factory-method)
 
 
+## Table of content
+
+- [Quick start](#Quick-start)
+- [From sourse](#From-sourse)
+- [How to use](#How-to-use)
+- [Files](#Files)
+
 ## Quick start
 
 1. Download binary
 2. Install [.Net Core v3.1](https://dotnet.microsoft.com/download/dotnet/3.1) runtime
 3. Run
-	* **Windows**
+	- **Windows**
 	``` bash
 	.\FactoryPattern.exe
 	```
-	* **Linux**
+	- **Linux**
 	``` bash
 	chmod +x FactoryPattern
 	./FactoryPattern
@@ -38,15 +45,15 @@ Example of using [factory method](https://refactoring.guru/design-patterns/facto
 
 ## How to use
 
-* **Esc** - exiting the application 
-* **F** - fireworks launch
+- `Esc` - exiting the application 
+- `F` - fireworks launch
 
 ## Files
 
-* **DrawPrimitives** - Namespace contains primitives for draw
-	* **[Coordinate.cs](DrawPrimitives/Coordinate.cs)** - Coordinate info
-	* **[Pixel.cs](DrawPrimitives/Pixel.cs)** - Pixel info
-	* **[PixelList.cs](DrawPrimitives/PixelList.cs)** - Pixel dictionary
-* **FireworkGuns** - Namespace contains implemented firework guns
-	* **[ConfettiGun.cs](FireworkGuns/ConfettiGun.cs)** - Confetti
-	* **[RedFireGun.cs](FireworkGuns/RedFireGun.cs)** - Gun shot red fires
+- **DrawPrimitives** - Namespace contains primitives for draw
+	- **[Coordinate.cs](DrawPrimitives/Coordinate.cs)** - Coordinate info
+	- **[Pixel.cs](DrawPrimitives/Pixel.cs)** - Pixel info
+	- **[PixelList.cs](DrawPrimitives/PixelList.cs)** - Pixel dictionary
+- **FireworkGuns** - Namespace contains implemented firework guns
+	- **[ConfettiGun.cs](FireworkGuns/ConfettiGun.cs)** - Confetti
+	- **[RedFireGun.cs](FireworkGuns/RedFireGun.cs)** - Gun shot red fires
