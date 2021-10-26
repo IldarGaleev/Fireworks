@@ -13,6 +13,8 @@ Example of using [factory method](https://refactoring.guru/design-patterns/facto
 
 ## Quick start
 
+![demo](Assets/demo.gif)
+
 1. Install [.Net Core v3.1](https://dotnet.microsoft.com/download/dotnet/3.1) runtime
 	- [Windows](https://docs.microsoft.com/dotnet/core/install/windows)
 	- [Linux](https://docs.microsoft.com/dotnet/core/install/linux)
