@@ -39,9 +39,6 @@ namespace FactoryPattern
 
             InitFireGuns(fireworkGuns);                
             
-#if Windows
-            Console.SetWindowSize(150, 32);
-#endif
             Console.Clear();
             
             while (run)
@@ -136,6 +133,7 @@ namespace FactoryPattern
             Console.ReadKey(true);
             Console.ResetColor();
             Console.Clear();
+            Console.CursorVisible = false;
         }
         private static void InitFireGuns(List<FireworkCreator> fireworkGuns)
         {
