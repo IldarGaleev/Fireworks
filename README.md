@@ -17,7 +17,7 @@ Example of using [factory method](https://refactoring.guru/design-patterns/facto
 	- [Windows](https://docs.microsoft.com/dotnet/core/install/windows)
 	- [Linux](https://docs.microsoft.com/dotnet/core/install/linux)
 	- [Mac](https://docs.microsoft.com/dotnet/core/install/macos)
-2. Download [latest release](/release/latest)
+2. Download [latest release](https://github.com/IldarGaleev/Fireworks/releases)
 3. Unzip files
 	- **Windows** powershell
 		``` powershell
