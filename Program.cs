@@ -10,8 +10,9 @@ namespace FactoryPattern
     class Program
     {
 
-        static int windowWidth=150;
-        static int windowHeight=32;
+        static int windowWidth = 150;
+        static int windowHeight = 32;
+        static int frameDelayMs = 20;
 
 
         public static void Main(string[] args)
@@ -21,14 +22,17 @@ namespace FactoryPattern
             List<IFirework> fireworks = new List<IFirework>();
             List<IFirework> deadFireworks = new List<IFirework>();
 
-            List<int> gunId = new List<int>(fireworkGuns.Count);
+            //charged fireworks list
+            List<int> cannonsQueue = new List<int>(fireworkGuns.Count);
 
-            PixelList pixels = new PixelList();
+            //frame buffer
+            PixelList currentFramePixels = new PixelList();
             
             bool run = true;
 
             Random random = new Random(34356); 
 
+            //fps counter
             object fpsLock=new object();
             int fps=0;
             int fpsResult=0;
@@ -37,93 +41,106 @@ namespace FactoryPattern
 
             Console.CursorVisible = false;
 
-            InitFireGuns(fireworkGuns);                
+            InitFireCannons(fireworkGuns);                
             
             Console.Clear();
             
+            //main routine
             while (run)
             {
                 lock(fpsLock){
                     fps++;
                 }
 
-                if (gunId.Count==0)
+                //if all cannons has fired, reinit list
+                if (cannonsQueue.Count==0)
                 {
-                    for (int i = 0; i < fireworkGuns.Count; i++)
-                    {
-                        gunId.Add(i);
-                    }
+                    cannonsQueue.AddRange(Enumerable.Range(0, fireworkGuns.Count - 1));
                 }
 
+                //try clear previous frame
                 try
                 {
-                   RedrawConsole(pixels, true);  
+                   DrawFrame(currentFramePixels, true);  
                 }
                 catch (ArgumentOutOfRangeException)
                 {
                     ReinitTerminalWindow();
                 }
                 
-                
-                pixels.Clear();
+                //clear previous frame buffer
+                currentFramePixels.Clear();
 
+                //draw (to buffer) guns to 
                 foreach (var item in fireworkGuns)
                 {
-                    pixels.Add(item.Draw());
+                    currentFramePixels.Add(item.Draw());
                 }
 
+                //draw (to buffer) fireworks
                 foreach (var fire in fireworks)
                 {
                     var nextFrame = fire.NextFrame();
+
+                    //if firework animation complete
                     if (nextFrame.Count == 0)
                     {
                         deadFireworks.Add(fire);
                     }
-                    else
+                    else //if there a new animation frame
                     {
+                        //draw (to buffer) next frame animation
                         foreach (var item in nextFrame)
                         {
-                            pixels.Add(item);
+                            currentFramePixels.Add(item);
                         }
                     }
                 }
 
-
+                //remove completed fire from firework list
                 fireworks=fireworks.Except(deadFireworks).ToList();
+                deadFireworks.Clear();
+                
+                //display info
                 Console.SetCursorPosition(0,0);
                 Console.WriteLine($"fireworks count: {fireworks.Count}  ");
-                Console.WriteLine($"fps: {fpsResult}  ");
-                deadFireworks.Clear();
-
+                Console.WriteLine($"fps: {fpsResult}  ");                
+                
+                //try draw current frame
                 try
                 {
-                   RedrawConsole(pixels);  
+                   DrawFrame(currentFramePixels);  
                 }
                 catch (ArgumentOutOfRangeException)
                 {
                     ReinitTerminalWindow();
                 }
                 
+                //frame delay
+                Thread.Sleep(frameDelayMs);
 
-                Thread.Sleep(30);
-
+                //read key
                 if (Console.KeyAvailable)
                 {
                     switch (Console.ReadKey(true).Key)
                     {
                         case ConsoleKey.Escape: run = false; break;
                         case ConsoleKey.F:
-                        int r = random.Next(0, gunId.Count - 1);
+                        int nextGunQueueId = random.Next(0, cannonsQueue.Count - 1);
                             
-                        fireworks.Add(fireworkGuns[gunId[r]].Fire());
-                        gunId.RemoveAt(r);
+                        fireworks.Add(fireworkGuns[cannonsQueue[nextGunQueueId]].Fire());
+                        cannonsQueue.RemoveAt(nextGunQueueId);
                         break;
                         default: break;
                     }
                 }
-            }
+
+            }//while (run)
+
+            //program complete routine
             Console.Clear();
             Console.WriteLine("Firework show complete");
+            Console.CursorVisible = true;
         }
 
         private static void ReinitTerminalWindow(){
@@ -135,22 +152,33 @@ namespace FactoryPattern
             Console.Clear();
             Console.CursorVisible = false;
         }
-        private static void InitFireGuns(List<FireworkCreator> fireworkGuns)
+
+        /// <summary>
+        /// init firework cannons
+        /// </summary>
+        /// <param name="fireworkCannons"></param>
+        private static void InitFireCannons(List<FireworkCreator> fireworkCannons)
         {
             for (int i = 0; i < 9; i++)
                 {
                     if (i % 2 == 0)
                     {
-                        fireworkGuns.Add(new RedFireGun((i + 1) * 15, 1));
+                        fireworkCannons.Add(new RedFireGun((i + 1) * 15, 1));
                     }
                     else
                     {
-                        fireworkGuns.Add(new ConfettiGun((i + 1) * 15, 1, ConsoleColor.Green, new char[] { ':', 'x' }));
+                        fireworkCannons.Add(new ConfettiGun((i + 1) * 15, 1, ConsoleColor.Green, new char[] { ':', 'x' }));
                     }
                 }
         }
 
-        private static void RedrawConsole(PixelList pixels,bool clear=false)
+
+        /// <summary>
+        /// Draw frame
+        /// </summary>
+        /// <param name="pixels">Pixel info list</param>
+        /// <param name="clear">If True - pixels will clean</param>
+        private static void DrawFrame(PixelList pixels,bool clear=false)
         { 
             foreach (var item in pixels)
             {
