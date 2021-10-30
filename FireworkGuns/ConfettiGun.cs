@@ -8,10 +8,10 @@ namespace FactoryPattern.FireworkGuns
     public class ConfettiGun : FireworkCreator
     {
 
-        private ConsoleColor _color;
+        private PixelColor _color;
         private char[] _chars;
 
-        public ConfettiGun(int x,int zIndex,ConsoleColor color, char[] chars):base(x,zIndex)
+        public ConfettiGun(int x,int zIndex, PixelColor color, char[] chars):base(x,zIndex)
         {
             if (chars.Length<1)
             {

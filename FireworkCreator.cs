@@ -17,7 +17,7 @@ namespace FactoryPattern
                 new KeyValuePair<Coordinate, Pixel>
                 (
                     new Coordinate{X=x,Y=0},
-                    new Pixel{Char='Y',Color=ConsoleColor.Yellow,ZIndex=zIndex+1}
+                    new Pixel{Char='Y',Color=PixelColor.Yellow,ZIndex=zIndex+1}
                 )
             };
 

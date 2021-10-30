@@ -5,7 +5,7 @@ namespace FactoryPattern.DrawPrimitives
     public class Pixel
     {
         public char Char { get; set; }
-        public ConsoleColor Color { get; set; }
+        public PixelColor Color { get; set; }
 
         public int ZIndex { get; set; }
 

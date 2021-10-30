@@ -6,7 +6,7 @@ namespace FactoryPattern.Fireworks
     public class RedFire : IFirework
     {
         private int _frameId;
-        const ConsoleColor _color = ConsoleColor.Red;
+        readonly PixelColor _color = PixelColor.Red;
 
         const int _lifetime = 10;
         const int _explosionHeight = 5;

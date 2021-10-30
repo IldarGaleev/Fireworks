@@ -180,7 +180,7 @@ namespace FactoryPattern
                     }
                     else
                     {
-                        fireworkCannons.Add(new ConfettiGun((i + 1) * 15, 1, ConsoleColor.Green, new char[] { ':', 'x' }));
+                        fireworkCannons.Add(new ConfettiGun((i + 1) * 15, 1, PixelColor.Green, new char[] { ':', 'x' }));
                     }
                 }
         }
@@ -204,7 +204,7 @@ namespace FactoryPattern
                     }
                     else
                     {
-                        stdOutStreamWriter.Write("\x1b[38;2;255;0;255m");
+                        stdOutStreamWriter.Write($"\x1b[38;2;{item.Value.Color.R};{item.Value.Color.G};{item.Value.Color.B}m");
                         stdOutStreamWriter.Write(item.Value.Char);
                     }                    
                 }

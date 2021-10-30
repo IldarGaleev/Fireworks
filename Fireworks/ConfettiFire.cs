@@ -10,7 +10,7 @@ namespace FactoryPattern.Fireworks
         public int ZIndex { get; private set; }
 
         private char[] _chars;
-        private ConsoleColor _color;
+        private PixelColor _color;
 
         private int _frameId;
         private float _speed;
@@ -20,7 +20,7 @@ namespace FactoryPattern.Fireworks
         const int _explosionHeight = 15;
 
 
-        public ConfettiFire(int x, int zIndex,ConsoleColor color,char[] chars)
+        public ConfettiFire(int x, int zIndex,PixelColor color,char[] chars)
         {
             _frameId = 0;
             if (chars.Length<1)
