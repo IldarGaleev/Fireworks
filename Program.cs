@@ -4,13 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using System.IO;
 
 namespace FactoryPattern
 {
     class Program
     {
 
-        static int windowWidth = 150;
+        static int windowWidth = 132;
         static int windowHeight = 32;
         static int frameDelayMs = 20;
 
@@ -38,119 +39,131 @@ namespace FactoryPattern
             int fpsResult=0;
             Timer fpsTimer=new Timer((e)=>{lock(fpsLock){fpsResult=fps; fps=0;}},null,0,1000);
 
-
-            Console.CursorVisible = false;
-
             InitFireCannons(fireworkGuns);                
             
-            Console.Clear();
-            
-            //main routine
-            while (run)
+            using (Stream stdOutputStream = Console.OpenStandardOutput())
             {
-                lock(fpsLock){
-                    fps++;
-                }
-
-                //if all cannons has fired, reinit list
-                if (cannonsQueue.Count==0)
+                using (StreamWriter stdOutStreamWriter = new StreamWriter(stdOutputStream))
                 {
-                    cannonsQueue.AddRange(Enumerable.Range(0, fireworkGuns.Count - 1));
-                }
-
-                //try clear previous frame
-                try
-                {
-                   DrawFrame(currentFramePixels, true);  
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    ReinitTerminalWindow();
-                }
-                
-                //clear previous frame buffer
-                currentFramePixels.Clear();
-
-                //draw (to buffer) guns to 
-                foreach (var item in fireworkGuns)
-                {
-                    currentFramePixels.Add(item.Draw());
-                }
-
-                //draw (to buffer) fireworks
-                foreach (var fire in fireworks)
-                {
-                    var nextFrame = fire.NextFrame();
-
-                    //if firework animation complete
-                    if (nextFrame.Count == 0)
+                    stdOutStreamWriter.Write("\x1b[?1049h");//vt-100 set alternative screen buffer
+                    stdOutStreamWriter.Write("\x1b[?25l");//vt-100 hide cursor
+                    stdOutStreamWriter.Write("\x1b[?3l");//vt-100 buffer width 132 column
+                    
+                    //main routine
+                    while (run)
                     {
-                        deadFireworks.Add(fire);
-                    }
-                    else //if there a new animation frame
-                    {
-                        //draw (to buffer) next frame animation
-                        foreach (var item in nextFrame)
+                        lock (fpsLock)
                         {
-                            currentFramePixels.Add(item);
+                            fps++;
                         }
-                    }
-                }
 
-                //remove completed fire from firework list
-                fireworks=fireworks.Except(deadFireworks).ToList();
-                deadFireworks.Clear();
-                
-                //display info
-                Console.SetCursorPosition(0,0);
-                Console.WriteLine($"fireworks count: {fireworks.Count}  ");
-                Console.WriteLine($"fps: {fpsResult}  ");                
-                
-                //try draw current frame
-                try
-                {
-                   DrawFrame(currentFramePixels);  
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    ReinitTerminalWindow();
-                }
-                
-                //frame delay
-                Thread.Sleep(frameDelayMs);
+                        //if all cannons has fired, reinit list
+                        if (cannonsQueue.Count == 0)
+                        {
+                            cannonsQueue.AddRange(Enumerable.Range(0, fireworkGuns.Count - 1));
+                        }
 
-                //read key
-                if (Console.KeyAvailable)
-                {
-                    switch (Console.ReadKey(true).Key)
-                    {
-                        case ConsoleKey.Escape: run = false; break;
-                        case ConsoleKey.F:
-                        int nextGunQueueId = random.Next(0, cannonsQueue.Count - 1);
-                            
-                        fireworks.Add(fireworkGuns[cannonsQueue[nextGunQueueId]].Fire());
-                        cannonsQueue.RemoveAt(nextGunQueueId);
-                        break;
-                        default: break;
-                    }
-                }
+                        stdOutStreamWriter.Write("\x1b[2J");//vt-100 clear screen
+                        stdOutStreamWriter.Write("\x1b[?25l");//vt-100 hide cursor
 
-            }//while (run)
+                        //clear previous frame buffer
+                        currentFramePixels.Clear();
+
+                        //draw (to buffer) guns to 
+                        foreach (var item in fireworkGuns)
+                        {
+                            currentFramePixels.Add(item.Draw());
+                        }
+
+                        //draw (to buffer) fireworks
+                        foreach (var fire in fireworks)
+                        {
+                            var nextFrame = fire.NextFrame();
+
+                            //if firework animation complete
+                            if (nextFrame.Count == 0)
+                            {
+                                deadFireworks.Add(fire);
+                            }
+                            else //if there a new animation frame
+                            {
+                                //draw (to buffer) next frame animation
+                                foreach (var item in nextFrame)
+                                {
+                                    currentFramePixels.Add(item);
+                                }
+                            }
+                        }
+
+                        //remove completed fire from firework list
+                        fireworks = fireworks.Except(deadFireworks).ToList();
+                        deadFireworks.Clear();
+
+                        //display info
+                        stdOutStreamWriter.Write($"\x1b[0;0f");//vt-100 set cursor position 0,0
+                        stdOutStreamWriter.WriteLine($"fireworks count: {fireworks.Count}  ");
+                        stdOutStreamWriter.WriteLine($"fps: {fpsResult}  ");
+
+                        DrawFrame(stdOutStreamWriter,currentFramePixels);
+                        
+                        //try draw current frame
+                        try
+                        {
+                            stdOutStreamWriter.Flush();//write all data to std stream
+                        }
+                        catch (Exception)
+                        {
+                            ReinitTerminalWindow(stdOutStreamWriter);
+                        }
+                        
+
+                        //frame delay
+                        Thread.Sleep(frameDelayMs);
+
+                        //read key
+                        try
+                        {
+                            if (Console.KeyAvailable)
+                            {
+                                switch (Console.ReadKey(true).Key)
+                                {
+                                    case ConsoleKey.Escape: run = false; break;
+                                    case ConsoleKey.F:
+                                        int nextGunQueueId = random.Next(0, cannonsQueue.Count - 1);
+
+                                        fireworks.Add(fireworkGuns[cannonsQueue[nextGunQueueId]].Fire());
+                                        cannonsQueue.RemoveAt(nextGunQueueId);
+                                        break;
+                                    default: break;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            run = false;
+                            stdOutStreamWriter.Close();
+                            return;
+                            //Console.WriteLine(ex.Message);
+                        }
+
+                    }//while (run)
+
+                    stdOutStreamWriter.Write("\x1b[?1049l");//vt-100 set main screen buffer
+
+                }//using (stdOutStreamWriter)
+            }//using (stdOutputStream)
 
             //program complete routine
-            Console.Clear();
-            Console.WriteLine("Firework show complete");
-            Console.CursorVisible = true;
+            Console.WriteLine("Firework show complete");            
         }
 
-        private static void ReinitTerminalWindow(){
-            Console.Clear();
-            Console.ForegroundColor=ConsoleColor.Yellow;
-            Console.WriteLine("Please, resize terminal and press any key...");
-            Console.ReadKey(true);
-            Console.ResetColor();
-            Console.Clear();
-            Console.CursorVisible = false;
+        private static void ReinitTerminalWindow(StreamWriter stdOutStreamWriter)
+        {
+            stdOutStreamWriter.Write("\x1b[2J");//vt-100 clear screen
+            stdOutStreamWriter.Write("\x1b[33m");//vt-100 set default text format
+            stdOutStreamWriter.Write("Please, resize terminal and press any key...");
+            //Console.ReadKey(true);
+            stdOutStreamWriter.Write("\x1b[0m");//vt-100 set default text format
         }
 
         /// <summary>
@@ -178,25 +191,25 @@ namespace FactoryPattern
         /// </summary>
         /// <param name="pixels">Pixel info list</param>
         /// <param name="clear">If True - pixels will clean</param>
-        private static void DrawFrame(PixelList pixels,bool clear=false)
+        private static void DrawFrame(StreamWriter stdOutStreamWriter,PixelList pixels,bool clear=false)
         { 
             foreach (var item in pixels)
             {
                 if (item.Key.X >= 0&& item.Key.X<windowWidth && item.Key.Y >= 0 && item.Key.Y<windowHeight)
                 {
-                    Console.SetCursorPosition(item.Key.X, 30 - item.Key.Y);
+                    stdOutStreamWriter.Write($"\x1b[{30 - item.Key.Y};{item.Key.X}f");
                     if (clear)
                     {
-                        Console.Write(' ');
+                        stdOutStreamWriter.Write(' ');
                     }
                     else
                     {
-                        Console.ForegroundColor = item.Value.Color;
-                        Console.Write(item.Value.Char);
+                        stdOutStreamWriter.Write("\x1b[38;2;255;0;255m");
+                        stdOutStreamWriter.Write(item.Value.Char);
                     }                    
                 }
             }
-            Console.ResetColor();
+            stdOutStreamWriter.Write("\x1b[0m");//vt-100 set default text format
         }
     }
 }
